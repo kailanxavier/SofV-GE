@@ -7,18 +7,22 @@ public:
 
 	Window();
 
-	// Initialise window
+	// Initialise window.
 	bool init();
 	bool broadcast();
 
-	// Release window
+	// Release window.
 	bool release();
 	bool isRun();
 
-	// EVENTS
-	virtual void onCreate() = 0;
-	virtual void onUpdate() = 0;
-	virtual void onDestroy() = 0;
+	RECT getClientWindowRect();
+	void setHWND(HWND hwnd);
+
+
+	// Events:
+	virtual void onCreate();
+	virtual void onUpdate();
+	virtual void onDestroy();
 
 
 	~Window();
@@ -26,4 +30,3 @@ protected:
 	HWND m_hwnd;
 	bool m_is_run;
 };
-
