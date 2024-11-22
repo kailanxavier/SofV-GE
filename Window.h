@@ -20,6 +20,7 @@ public:
 	virtual void onUpdate() = 0;
 	virtual void onDestroy() = 0;
 
+
 	~Window();
 protected:
 	HWND m_hwnd;

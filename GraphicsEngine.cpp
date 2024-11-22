@@ -1,26 +1,24 @@
 #include "GraphicsEngine.h"
 
+
 GraphicsEngine::GraphicsEngine()
 {
 }
 
 bool GraphicsEngine::init()
 {
-
 	D3D_DRIVER_TYPE driver_types[] =
 	{
 		D3D_DRIVER_TYPE_HARDWARE,
 		D3D_DRIVER_TYPE_WARP,
 		D3D_DRIVER_TYPE_REFERENCE
 	};
-
 	UINT num_driver_types = ARRAYSIZE(driver_types);
 
 	D3D_FEATURE_LEVEL feature_levels[] =
 	{
 		D3D_FEATURE_LEVEL_11_0
 	};
-
 	UINT num_feature_levels = ARRAYSIZE(feature_levels);
 
 	HRESULT res = 0;
@@ -30,27 +28,31 @@ bool GraphicsEngine::init()
 
 		if (SUCCEEDED(res))
 			break;
-			++driver_type_index;
+		++driver_type_index;
 	}
 
-	if (FAILED(res)) 
+	if (FAILED(res))
 	{
 		return false;
 	}
 
-	
+
 
 	return true;
 }
 
+
 bool GraphicsEngine::release()
 {
+	m_imm_context->Release();
+	m_d3d_device->Release();
 	return true;
 }
 
 GraphicsEngine::~GraphicsEngine()
 {
 }
+
 
 GraphicsEngine* GraphicsEngine::get()
 {
