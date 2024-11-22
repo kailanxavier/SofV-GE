@@ -1,3 +1,5 @@
+// This script creates the application window
+
 #include "Window.h"
 
 Window* window=nullptr;
