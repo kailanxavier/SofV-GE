@@ -4,6 +4,7 @@
 #include "SwapChain.h"
 #include "DeviceContext.h"
 #include "VertexBuffer.h"
+#include "ConstantBuffer.h"
 #include "VertexShader.h"
 #include "PixelShader.h"
 
@@ -22,4 +23,5 @@ private:
 	VertexBuffer* m_vb; // Vertex buffer.
 	VertexShader* m_vs; // Vertex shader.
 	PixelShader* m_ps; // Pixel shader.
+	ConstantBuffer* m_cb; // Constant buffer.
 };

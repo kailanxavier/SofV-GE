@@ -1,4 +1,5 @@
 #include "AppWindow.h"
+#include <Windows.h>
 
 struct vec3
 {
@@ -8,7 +9,16 @@ struct vec3
 struct vertex
 {
 	vec3 position;
+	vec3 position1;
 	vec3 color;
+	vec3 color1;
+};
+
+
+__declspec(align(16)) // This controls the alignment of the struct.
+struct constant
+{
+	unsigned int m_time;
 };
 
 AppWindow::AppWindow()
@@ -31,11 +41,11 @@ void AppWindow::onCreate()
 
 	vertex list[]=
 	{
-		//X - Y - Z
-		{-0.5f,-0.5f,0.0f,   0, 0, 0}, // Position 1
-		{-0.5f,0.5f,0.0f,    1, 1, 0}, // Position 2
-		{ 0.5f,-0.5f,0.0f,   0, 0, 1}, // Position 3
-		{ 0.5f,0.5f,0.0f,    1, 1, 1}  // Position 4
+		// X1	 Y1     Z1	   X2      Y2     Z2       C1		   C2
+		{-0.5f, -0.5f, 0.0f, -0.32f, -0.11f, 0.0f,   0, 0, 0,	0, 1, 0}, // Position 1
+		{-0.5f, 0.5f, 0.0f, -0.11f, 0.78f ,0.0f,    1, 1, 0,	0, 1, 1}, // Position 2
+		{ 0.5f, -0.5f, 0.0f, 0.75f, -0.73f, 0.0f,  0, 0, 1,		1, 0, 0}, // Position 3
+		{ 0.5f, 0.5f, 0.0f,  0.88f, 0.77f, 0.0f,   1, 1, 1,		1, 0, 1}  // Position 4
 	};
 
 	m_vb = GraphicsEngine::get()->createVertexBuffer();
@@ -52,10 +62,15 @@ void AppWindow::onCreate()
 
 
 	GraphicsEngine::get()->compilePixelShader(L"PixelShader.hlsl", "psmain", &shader_byte_code, &size_shader);
-
 	m_ps = GraphicsEngine::get()->createPixelShader(shader_byte_code, size_shader);
-
 	GraphicsEngine::get()->releaseCompiledShader();
+
+	constant cc;
+	cc.m_time = 0;
+
+	
+	m_cb = GraphicsEngine::get()->createConstantBuffer();
+	m_cb->load(&cc, sizeof(constant));
 }
 
 void AppWindow::onUpdate()
@@ -64,9 +79,16 @@ void AppWindow::onUpdate()
 	// This clear the target render:
 	GraphicsEngine::get()->getImmediateDeviceContext()->clearRenderTargetColor(this->m_swap_chain, 0, 0.4f, 0.2f, 1);
 
-	// This sets the viewport:
+	// This sets the viewport of the render target:
 	RECT rc = this->getClientWindowRect();
 	GraphicsEngine::get()->getImmediateDeviceContext()->setViewportSize(rc.right - rc.left, rc.bottom - rc.top);
+
+	constant cc;
+	cc.m_time = ::GetTickCount64();
+	m_cb->update(GraphicsEngine::get()->getImmediateDeviceContext(), &cc);
+
+	GraphicsEngine::get()->getImmediateDeviceContext()->setConstantBuffer(m_vs, m_cb);
+	GraphicsEngine::get()->getImmediateDeviceContext()->setConstantBuffer(m_ps, m_cb);
 
 	// This sets the default shader in the graphics pipeline:
 	GraphicsEngine::get()->getImmediateDeviceContext()->setVertexShader(m_vs);
