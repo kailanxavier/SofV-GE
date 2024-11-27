@@ -2,6 +2,7 @@
 #include <Windows.h>
 #include "Vector3D.h"
 #include "Matrix4x4.h"
+#include "InputSystem.h"
 
 struct vertex
 {
@@ -47,15 +48,15 @@ void AppWindow::updateQuadPosition()
 	cc.m_world.setScale(Vector3D(1, 1, 1));
 
 	temp.setIdentity();
-	temp.setRotationZ(m_delta_scale);
+	temp.setRotationZ(0.0f);
 	cc.m_world *= temp;
 
 	temp.setIdentity();
-	temp.setRotationY(m_delta_scale);
+	temp.setRotationY(m_rot_y);
 	cc.m_world *= temp;
 
 	temp.setIdentity();
-	temp.setRotationX(m_delta_scale);
+	temp.setRotationX(m_rot_x);
 	cc.m_world *= temp;
 
 
@@ -81,6 +82,9 @@ AppWindow::~AppWindow()
 void AppWindow::onCreate()
 {
 	Window::onCreate();
+
+	InputSystem::get()->addListener(this);
+
 	GraphicsEngine::get()->init();
 	m_swap_chain = GraphicsEngine::get()->createSwapChain();
 
@@ -167,8 +171,12 @@ void AppWindow::onCreate()
 void AppWindow::onUpdate()
 {
 	Window::onUpdate();
+
+	InputSystem::get()->update();
+
 	// This clear the target render:
 	GraphicsEngine::get()->getImmediateDeviceContext()->clearRenderTargetColor(this->m_swap_chain, 0, 0.4f, 0.2f, 1);
+
 
 	// This sets the viewport of the render target:
 	RECT rc = this->getClientWindowRect();
@@ -179,22 +187,26 @@ void AppWindow::onUpdate()
 	GraphicsEngine::get()->getImmediateDeviceContext()->setConstantBuffer(m_vs, m_cb);
 	GraphicsEngine::get()->getImmediateDeviceContext()->setConstantBuffer(m_ps, m_cb);
 
+
 	// This sets the default shader in the graphics pipeline:
 	GraphicsEngine::get()->getImmediateDeviceContext()->setVertexShader(m_vs);
 	GraphicsEngine::get()->getImmediateDeviceContext()->setPixelShader(m_ps);
 
+
 	// This sets the VertexBuffer:
 	GraphicsEngine::get()->getImmediateDeviceContext()->setVertexBuffer(m_vb);
 
+
 	// This sets the IndexBuffer:
 	GraphicsEngine::get()->getImmediateDeviceContext()->setIndexBuffer(m_ib);
+
 
 	// This draws the triangle:
 	GraphicsEngine::get()->getImmediateDeviceContext()->drawIndexedTriangleList(m_ib->getSizeIndexList(), 0, 0);
 	m_swap_chain->present(true);
 
 	m_old_delta = m_new_delta;
-	m_new_delta = ::GetTickCount64();
+	m_new_delta = ::GetTickCount();
 
 	m_delta_time = (m_old_delta) ? ((m_new_delta - m_old_delta) / 1000.0f) : 0;
 }
@@ -209,4 +221,36 @@ void AppWindow::onDestroy()
 	m_vs->release();
 	m_ps->release();
 	GraphicsEngine::get()->release();
+}
+
+void AppWindow::onKeyDown(int key)
+{
+	if (key == 'W')
+	{
+		m_rot_x += 3.14f * m_delta_time;
+	}
+	else if (key == 'S')
+	{
+		m_rot_x += -3.14f * m_delta_time;
+	}
+	else if (key == 'A')
+	{
+		m_rot_y += -3.14f * m_delta_time;
+	}
+	else if (key == 'D')
+	{
+		m_rot_y += 3.14f * m_delta_time;
+	}
+}
+
+void AppWindow::onKeyUp(int key)
+{
+}
+
+void AppWindow::onMouseMove(const Point& delta_mouse_pos)
+{
+	m_rot_x -= delta_mouse_pos.m_y * m_delta_time;
+	m_rot_y -= delta_mouse_pos.m_x * m_delta_time;
+
+
 }
