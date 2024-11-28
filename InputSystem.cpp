@@ -80,12 +80,7 @@ void InputSystem::addListener(InputListener* listener)
 
 void InputSystem::removeListener(InputListener* listener)
 {
-	std::map<InputListener*, InputListener*>::iterator it = m_map_listeners.find(listener);
-
-	if (it!= m_map_listeners.end())
-	{
-		m_map_listeners.erase(it);
-	}
+	m_set_listeners.erase(listener);
 }
 
 InputSystem* InputSystem::get()
