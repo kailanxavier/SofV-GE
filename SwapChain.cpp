@@ -1,13 +1,10 @@
 #include "SwapChain.h"
-#include "GraphicsEngine.h"
+#include "RenderSystem.h"
+#include <exception>
 
-SwapChain::SwapChain()
+SwapChain::SwapChain(HWND hwnd, UINT width, UINT height, RenderSystem * system) : m_system(system)
 {
-}
-
-bool SwapChain::init(HWND hwnd, UINT width, UINT height)
-{
-	ID3D11Device* device = GraphicsEngine::get()->m_d3d_device;
+	ID3D11Device* device = m_system->m_d3d_device;
 
 	DXGI_SWAP_CHAIN_DESC desc;
 	ZeroMemory(&desc, sizeof(desc));
@@ -24,11 +21,11 @@ bool SwapChain::init(HWND hwnd, UINT width, UINT height)
 	desc.Windowed = TRUE;
 
 	// This creates the swap chain for the window indicated by HWND parameter.
-	HRESULT hr = GraphicsEngine::get()->m_dxgi_factory->CreateSwapChain(device, &desc, &m_swap_chain);
+	HRESULT hr = m_system->m_dxgi_factory->CreateSwapChain(device, &desc, &m_swap_chain);
 
 	if (FAILED(hr))
 	{
-		return false;
+		throw std::exception("SwapChain could not be created successfully.");
 	}
 
 	// This gets the back buffer colour and creates its render target view.
@@ -37,7 +34,7 @@ bool SwapChain::init(HWND hwnd, UINT width, UINT height)
 
 	if (FAILED(hr))
 	{
-		return false;
+		throw std::exception("SwapChain could not be created successfully.");
 	}
 
 	hr = device->CreateRenderTargetView(buffer, NULL, &m_rtv);
@@ -45,10 +42,9 @@ bool SwapChain::init(HWND hwnd, UINT width, UINT height)
 
 	if (FAILED(hr))
 	{
-		return false;
+		throw std::exception("SwapChain could not be created successfully.");
 	}
 
-	return true;
 }
 
 bool SwapChain::present(bool vsync)
@@ -58,13 +54,8 @@ bool SwapChain::present(bool vsync)
 	return true;
 }
 
-bool SwapChain::release()
-{
-	m_swap_chain->Release();
-	delete this;
-	return true;
-}
-
 SwapChain::~SwapChain()
 {
+	m_rtv->Release();
+	m_swap_chain->Release();
 }
