@@ -115,8 +115,6 @@ void AppWindow::onCreate()
 	InputSystem::get()->addListener(this);
 	InputSystem::get()->showCursor(false);
 
-	GraphicsEngine::get()->init();
-
 	RECT rc = this->getClientWindowRect();
 	m_swap_chain = GraphicsEngine::get()->getRenderSystem()->createSwapChain(this->m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
 
@@ -200,8 +198,7 @@ void AppWindow::onUpdate()
 	InputSystem::get()->update();
 
 	// This clear the target render:
-	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->clearRenderTargetColor(this->m_swap_chain, 0, 0.4f, 0.2f, 1);
-
+	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->clearRenderTargetColor(this->m_swap_chain, 0.0f, 0.35f, 0.79f, 1);
 
 	// This sets the viewport of the render target:
 	RECT rc = this->getClientWindowRect();
@@ -239,7 +236,6 @@ void AppWindow::onUpdate()
 void AppWindow::onDestroy()
 {
 	Window::onDestroy();
-	GraphicsEngine::get()->release();
 }
 
 void AppWindow::onFocus()
